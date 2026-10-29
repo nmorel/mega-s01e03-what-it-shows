@@ -1,0 +1,65 @@
+---
+layout: runbook
+title: '#4471 split: the problems it holds'
+owner: nmorel
+status: draft
+reviewed: 2026-10-29
+signature: v1.eyJzdWIiOiIyNzM0IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyOTAxMDAsImV4cCI6MTc5MzM3NjUwMH0.KRkNi7IXb-VZCFNWoaxHdKXDy2iiJH-Cd7UJD7-hzCA
+---
+
+<script>
+  import ProblemSplit from '#lib/kb/ProblemSplit.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+[#4471](/kb/incidents/4471) is marked known: one parser bug, one fix queued. Read the reports instead
+of the subject lines and it holds three problems. The queued parser fix closes only one of them.
+
+<Callout kind="warn">
+Do not close #4471 when the parser fix ships. The other two problems keep coming in.
+</Callout>
+
+## The split
+
+<ProblemSplit ticket={4471} links={{
+  parser: 'https://github.com/nmorel/mega-s01e03-what-it-shows/issues/1',
+  hint: 'https://github.com/nmorel/mega-s01e03-what-it-shows/issues/2',
+  'one-day': 'https://github.com/nmorel/mega-s01e03-what-it-shows/issues/3',
+}} />
+
+Counts are of unique reports. The export pages overlap, so some reports appear twice in
+`reports-4471.json`; each id counts once.
+
+## How each report was placed
+
+- **`parser`**: the shared parser reads every date month first, and every tenant on file writes
+  the day first. A booking for 4 March comes out as 3 April. Reports by app and email, and by form
+  from booking-v2 tenants.
+- **`hint`**: booking-v3 prints `MM/DD/YYYY` under its date field. People at day-first tenants
+  (Alder Physio, Copper Studio, Pale Harbour) type what the hint says, and the form reads it the
+  tenant's way. The result looks like the parser bug, but the parser fix does not touch it: the
+  hint has to change.
+- **`one-day`**: the date moves by one day and the month stays right ("Tuesday 12 May, calendar
+  says Monday 11 May"; Lisbon got Tuesday, Toronto got Monday). That is not a swapped month, so it
+  is a time-zone or date-boundary bug. The desk already listed these in `desk-notes.json`, but
+  CauseTable counts them under `parser` and only footnotes them.
+
+## Why #4471 looked like one problem
+
+- The desk merges on subject line alone ([decision 0001](/kb/decisions/0001-dedupe-by-subject)). All
+  three problems arrive as "Date is wrong" or "Booking on the wrong date".
+- Intake's tag is a guess from the reporter's browser locale, not from the tenant. The "intake tag
+  agrees" column shows how often it is right.
+- CauseTable groups by tenant and channel only, so a one-day move lands under `parser`.
+
+## What to do
+
+1. Keep the parser fix on #4471's queue: it covers the `parser` row.
+2. Change booking-v3's hint to the tenant's own date order, or make the form follow its hint.
+3. Look for the one-day move in time-zone handling: where an invite turns a local date into a time
+   and back.
+4. When you merge a date report, read the body and place it with the tenant's locale and form,
+   not with its subject or intake tag.
+
+<RenderStamp {signature} />
