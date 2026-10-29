@@ -17,7 +17,9 @@ signature: v1.eyJzdWIiOiIyNzM0IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYX
 of the subject lines and it holds three problems. The queued parser fix closes only one of them.
 
 <Callout kind="warn">
-Do not close #4471 when the parser fix ships. The other two problems keep coming in.
+Engineering closed #4471 on 5 October: `parser` fixed ("fix(dates): parse dd/mm for eu
+locales"), `hint` won't fix (booking-v3 form retired). Nothing in that update covers the
+one-day move: its ticket stays open.
 </Callout>
 
 ## The split
