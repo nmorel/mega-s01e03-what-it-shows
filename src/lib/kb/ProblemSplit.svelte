@@ -4,8 +4,9 @@
   import { causeOf, uniqueById, type Report } from '#lib/kb/causes';
   import { tenantOf } from '#lib/kb/locales';
 
-  // One row per problem in a merged ticket. Unlike CauseTable, reports the desk read as a one-day
-  // move (desk-notes.json) are their own problem, not a footnote under the tenant's cause.
+  // One row per problem in a merged ticket. Counts follow CauseTable: every report under its
+  // tenant's cause. Reports the desk read as a one-day move (desk-notes.json) also get their own
+  // row, because they are a different bug, so the rows add up to more than the ticket.
   type Problem = 'parser' | 'hint' | 'one-day' | 'unplaced';
   let { ticket, links = {} }: { ticket: number; links?: Partial<Record<Problem, string>> } = $props();
 
@@ -17,11 +18,13 @@
   };
 
   const merged = $derived(uniqueById(reports as Report[]).filter((r) => r.mergedInto === ticket));
-  const problemOf = (r: Report): Problem =>
-    notes.oneDayMove.includes(r.id) ? 'one-day' : (causeOf(r, tenantOf(r)) ?? 'unplaced');
+  const problemsOf = (r: Report): Problem[] => [
+    causeOf(r, tenantOf(r)) ?? 'unplaced',
+    ...(notes.oneDayMove.includes(r.id) ? (['one-day'] as const) : []),
+  ];
   const rows = $derived.by(() => {
     const by = new Map<Problem, Report[]>();
-    for (const r of merged) by.set(problemOf(r), [...(by.get(problemOf(r)) ?? []), r]);
+    for (const r of merged) for (const p of problemsOf(r)) by.set(p, [...(by.get(p) ?? []), r]);
     return [...by.entries()]
       .map(([problem, rs]) => {
         const days = rs.map((r) => r.receivedAt.slice(0, 10)).sort();

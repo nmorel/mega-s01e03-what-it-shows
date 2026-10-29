@@ -28,8 +28,9 @@ Do not close #4471 when the parser fix ships. The other two problems keep coming
   'one-day': 'https://github.com/nmorel/mega-s01e03-what-it-shows/issues/3',
 }} />
 
-Counts are of unique reports. The export pages overlap, so some reports appear twice in
-`reports-4471.json`; each id counts once.
+Counts are of unique reports, as CauseTable counts them. The export pages overlap, so some
+reports appear twice in `reports-4471.json`; each id counts once. A one-day report stays counted
+under its tenant's cause, as the desk files it, and also has its own row.
 
 ## How each report was placed
 
@@ -42,8 +43,8 @@ Counts are of unique reports. The export pages overlap, so some reports appear t
   hint has to change.
 - **`one-day`**: the date moves by one day and the month stays right ("Tuesday 12 May, calendar
   says Monday 11 May"; Lisbon got Tuesday, Toronto got Monday). That is not a swapped month, so it
-  is a time-zone or date-boundary bug. The desk already listed these in `desk-notes.json`, but
-  CauseTable counts them under `parser` and only footnotes them.
+  is a time-zone or date-boundary bug. The desk already listed these in `desk-notes.json`, and
+  CauseTable counts them under `parser` with a footnote. They need their own fix.
 
 ## Why #4471 looked like one problem
 
